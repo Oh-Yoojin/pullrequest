@@ -21,12 +21,13 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
 
 data = pd.read_csv(r'C:\Users\User\Desktop\moviedata\yujindata.csv', encoding = 'CP949')
-data = data.drop(['영화명', '최종관객수'],1)
+data = data.drop(['영화명', '최종관객수'],1) # 필요없는 data 삭제
 
-X = np.array(data.iloc[:,3:])
-y = np.array(data['Target'])
+X = np.array(data.iloc[:,1:]) # input
+y = np.array(data['Target']) # output
 
-# SVM param setting
+# SVM parameter setting
+# 5-fold CV
 C = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 10, 100]
 g = [0.01,0.1,1]
 sk_fold = StratifiedKFold(n_splits=5, shuffle=True)
@@ -40,7 +41,7 @@ for param_c in C:
             tmp.append(acc)
             avg_acc = np.mean(np.array(acc))
 
-# SVM split
+# SVM modeling (C=10, gamma=0.01)
 X_tr, X_te, Y_tr, Y_te = train_test_split(X, y, test_size=0.3, stratify=y, random_state=100)
 
 clf_svm = SVC(kernel='rbf', C=10, gamma=0.01)
@@ -51,7 +52,8 @@ clf_svm.score(X_te, Y_te)
 print(classification_report(Y_te, SVC_pred))
 
 
-# Logistic Regression
+# Logistic Regression parameter setting
+# 5-fold CV
 sk_fold=StratifiedKFold(n_splits=5)
 
 C=[0.01,0.1,1,10,100,1000]
@@ -65,7 +67,7 @@ for param_c in C:
         tmp.append(acc)
         avg_acc = np.mean(np.array(acc))
 
-# logistic Regression split
+# logistic Regression modeling (C=10)
 X_tr, X_te, Y_tr, Y_te = train_test_split(X, y, test_size=0.3, stratify=y, random_state=100)
 
 clf_lr = LogisticRegression(multi_class='multinomial',solver='lbfgs', C=10)
@@ -76,7 +78,8 @@ clf_lr.score(X_te, Y_te)
 print(classification_report(Y_te, LR_pred))
 
 
-# DT
+# DT parameter setting
+# 5-fold CV
 max_depth=[5, 10]
 min_samples_split=[10, 20, 50]
 min_samples_leaf=[50, 100]
@@ -93,7 +96,7 @@ for depth in max_depth:
                 tmp.append(acc)
                 avg_acc = np.mean(np.array(acc))
 
-# DT split
+# DT modeling (max_depth=10, min_samples_split=50, min_samples_leaf=50)
 clf_tree=DecisionTreeClassifier(max_depth=10, min_samples_split=50, min_samples_leaf=50)
 clf_tree.fit(X_tr, Y_tr)
 DT_pred = clf_tree.predict(X_te)
